@@ -10,9 +10,38 @@
 
 of large-scale port-Hamiltonian (pH) models. The model class of pH systems enables energy-based modeling and a flexible coupling of models across different physical domains. This makes them well-suited for the simulation and control of complex technical systems. 
     
-### The *phs* class
+## Port-Hamiltonian systems
 
-In **MORpH**, pH models are represented as objects of the *phs* class. They can be created in the following way:
+In **MORpH**, we work with pH models of the following form:
+
+$$
+\begin{align*}
+Ex(t) &= (J-R)Qx(t) + (G-P)u(t), \\
+y(t) &= (G+P)^TQx(t) + (S+N)u(t),
+\end{align*}
+$$
+
+where $E,Q,J,R \in \mathbb{R}^{n \times n}$, $G,P \in \mathbb{R}^{n \times m}$, $S,N \in \mathbb{R}^{m \times m}$ fulfill the following constraints:
+
+(i) The structure matrix 
+
+$$ \Gamma := \left\lbrack \matrix{Q^T J Q & Q^T G \cr -G^T Q & N} \right\rbrack $$ 
+
+is skew-symmetric, i.e., $\Gamma=-\Gamma^T$.
+
+(ii) The dissipation matrix
+
+$$ W := \left\lbrack \matrix{Q^T R Q & Q^T P \cr P^T Q & S} \right\rbrack $$ 
+
+is positive semi-definite, i.e., $W=W^T\geq 0$.
+
+(iii) The quadratic Hamiltonian is stated as:
+
+$$ \mathcal{H}(x) = \frac{1}{2}x^T Q^T E x $$
+
+with $Q^T E = E^T Q \geq 0$.
+
+PH models are represented as objects of the *phs* class. They can be created in the following way:
 ```
 sys = phs(J,R,Q,G,E,P,S,N);
 ```
@@ -25,13 +54,24 @@ bode(sys)
 
 ### Structure-preserving MOR
 
-**MORpH** offers different ways to reduce large-scale pH models in a structure-preserving way, meaning that the reduced model also has pH form.
+The goal of structure-preserving MOR is to approximate a large-scale pH model with a much smaller reduced model 
+
+$$
+\begin{align*}
+\hat{E}\hat{x}(t) &= (\hat{J}-\hat{R})\hat{Q}\hat{x}(t) + (\hat{G}-\hat{P})u(t), \\
+\hat{y}(t) &= (\hat{G}+\hat{P})^T\hat{Q}\hat{x}(t) + (\hat{S}+\hat{N})u(t),
+\end{align*}
+$$
+
+with reduced state vector $\hat{x} \in \mathbb{R}^{r}$ such that (i) $r \ll n$, (ii) $\hat{y} \approx y$ for certain $u$ and (iii) the reduced model fulfills the pH structural constraints.
+
+**MORpH** offers different algorithms to reduce large-scale pH models with an intuitive user interface.
 For example, we can reduce our created pH model ```sys``` with the IRKA-PH algorithm (see [[1]](https://doi.org/10.1016/j.automatica.2012.05.052)) to a system with dimension ```redOrder``` via
 ```
 redSys = irkaPH(sys, redOrder, Opts);
 ```
 The ```Opts``` struct can be used to configure the algorithm's parameters.
-An overview of the implemented algorithms is given [HERE](src/MOR/README.md). For a more detailed description of the different algorithms, pleases have a look at the [DEMO](/demos) files. 
+An overview of the implemented algorithms is given [here](src/MOR/README.md). For a more detailed description of the different algorithms, pleases have a look at the [demos](/demos). 
 
 
 ## Installation
@@ -39,7 +79,9 @@ An overview of the implemented algorithms is given [HERE](src/MOR/README.md). Fo
 After downloading **MORpH**, change to the installation directory in MATLAB and run the script `setup_morph.m`.
 It also assists with the installation of third-party software that may be required for some functionalities within **MORpH**.
 
-### Toolbox structure
+## Getting started
+You successfully installed **MORpH**? Great! The best way to get familiar with the toolbox is the [demo for creating pH models](demos/demo_phs_class.mlx). After you created your first pH model, you can analyze your model with the functions provided [here](src/@phs). Next, you can have a look [here](src/MOR/README.md) for an overview of the different MOR methods.
+
 The toolbox is structured as follows:
 
 **MORpH** (main folder)
